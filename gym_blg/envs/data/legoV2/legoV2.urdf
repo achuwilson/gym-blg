@@ -1,0 +1,33 @@
+<?xml version="0.0" ?>
+<robot name="legov2.urdf">
+  <link name="legobrick">
+    <contact>
+<rolling_friction value=".05001"/>
+      <spinning_friction value=".5001"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+       <mass value=".1"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz=" 0 0 0"/>
+      <geometry>
+        <!--mesh filename="lego.obj" scale=".1 .1 .1"/-->
+        <mesh filename="lego.STL" scale=".001 .001 .001"/>
+      </geometry>
+       <material name="yellow">
+        <color rgba="1 1 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 			<!--box size="0.045 0.045 0.045"/-->
+                       <mesh filename="lego.STL" scale=".001 .001 .001"/>
+
+      </geometry>
+    </collision>
+  </link>
+</robot>
+
