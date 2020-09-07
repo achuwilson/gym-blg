@@ -1,11 +1,52 @@
 # BlindGrasp
 
 ## Installation
-From the gym directory
+
+### Local Installation
+
+Create a python virtual env
+```
+python3 -m venv blgenv
+```
+Activate it
+```
+ source blgenv/bin/activate
+ ```
+Install Ipython for Jupyter notebook
+```
+pip install ipykernel
+```
+Add the venv to Jupyter
+```
+python -m ipykernel install --user --name=blgenv
+```
+also
+```
+pip install ipywidgets
+```
+
+From the gym-blg directory, install the gym environment
 ```
  pip3 install -e .
 ```
-## Task 
+Note: if the error ```error: invalid command 'bdist_wheel'``` shows up, install wheel: ``` pip3 install wheel```
+
+Install Tensorflow 1.14 ( Stable baselines support only TF1 as of now)
+```
+pip install tensorflow-gpu==1.14
+```
+Install Stable Baselines
+```
+sudo apt-get update && sudo apt-get install cmake libopenmpi-dev python3-dev zlib1g-dev
+
+pip install stable-baselines
+```
+Note: if it throws an error with skbuild not found, install it :  ```pip install scikit-build```
+
+Note: opencv-python installation associated with stable-baselines sometimes takes a long time. 
+
+
+## Task 1
 Random number of spheres and lego cubes are spawned into a tray.
 The agent must learn to move the kuka robot towards the tray, explore the bottom of th tray and grasp the objects
 

@@ -10,9 +10,11 @@ from gym.utils import seeding
 import numpy as np
 import blg_core
 
+#Distace delta values
 XY_DIST=0.01 #1 cm
 Z_DIST=0.003 #3mm
 Z_JUMP=0.055 #5cm
+#xpositive, xnegative etc
 xp=np.array([XY_DIST,0,0,0])
 xn=np.array([-XY_DIST,0,0,0])
 yp=np.array([0,XY_DIST,0,0])
@@ -97,12 +99,11 @@ class BlgDiscreteEnv(gym.Env):
         '''
         #prox=22, pos=9,force=3, maps =3*32*32, gelsight 2*32*32 => total=5154
         self.observation_space = Box(low=0,high=1,shape=(5154,))
-        self.cnt=0
+
         
 
  
     def step(self, action):
-        self.cnt = self.cnt+1
         
         reward,Done, obs=self.blg.step(funcDict[action]())
         '''
@@ -142,7 +143,7 @@ class BlgDiscreteEnv(gym.Env):
         gelsight1=obs[6].flatten()
         gelsight2=obs[7].flatten()
         step_obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap,gelsight1,gelsight2))
-        print("count ", self.cnt, " Done ", Done)
+
         return step_obs,reward,Done, {}
 
     

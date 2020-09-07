@@ -1105,7 +1105,7 @@ class BlindGrasp:
         #sense the state (observe)
         obs=self.getObservation()
         # return reward, isDone, SensorObservations(next state)
-        if(self.*==self.MaxSteps):
+        if(self.StepCount==self.MaxSteps):
             self.StepCount=0
             #end of episode
             self.DoneFlag = True
@@ -1154,6 +1154,7 @@ class BlindGrasp:
         self.objInHandFlag=False
         self.GraspCount=0
         self.StepCount =0
+        
         self.prevZ=self.startZ
         self.DoneFlag=False
         self.prevGripCmd=False
