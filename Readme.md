@@ -1,8 +1,10 @@
 # BlindGrasp
 
-## Installation
 
-### Local Installation
+
+## **Local Installation**
+
+#### **Create Virtual Env**
 
 Create a python virtual env
 ```
@@ -20,10 +22,11 @@ Add the venv to Jupyter
 ```
 python -m ipykernel install --user --name=blgenv
 ```
-also
+also for the GUI
 ```
 pip install ipywidgets
 ```
+#### **Install the BlindGrasp gym environmet**
 
 From the gym-blg directory, install the gym environment
 ```
@@ -31,6 +34,7 @@ From the gym-blg directory, install the gym environment
 ```
 Note: if the error ```error: invalid command 'bdist_wheel'``` shows up, install wheel: ``` pip3 install wheel```
 
+#### **Install Tensorflow and Stable Baselines**
 Install Tensorflow 1.14 ( Stable baselines support only TF1 as of now)
 ```
 pip install tensorflow-gpu==1.14
@@ -39,20 +43,28 @@ Install Stable Baselines
 ```
 sudo apt-get update && sudo apt-get install cmake libopenmpi-dev python3-dev zlib1g-dev
 
-pip install stable-baselines
+pip install stable-baselines[mpi]
+
 ```
 Note: if it throws an error with skbuild not found, install it :  ```pip install scikit-build```
 
 Note: opencv-python installation associated with stable-baselines sometimes takes a long time. 
 
 
-## Task 1
+
+## **Installation on Google Colab**
+See this Google Colab [Notebook](https://colab.research.google.com/drive/1Sgng1H7ZC21iQxenNCkiZeAFjbccyJYV?usp=sharing)
+
+Note: GUI not available with Colab
+
+
+# **Task 1**
 Random number of spheres and lego cubes are spawned into a tray.
 The agent must learn to move the kuka robot towards the tray, explore the bottom of th tray and grasp the objects
 
 
 
-### Discrete Action Space Environment
+### **Discrete Action Space Environment**
 ```
 import gym
 env=gym.make("gym_blg:blgd-v0", GUI=True)
@@ -82,30 +94,14 @@ Action space is single dimensional and discrete which can have values from 0 to 
 |13|Close Gripper |
 
 
-### Continuous Environment
+### **Continuous Environment**
 TODO
 
 
-### Observation Space
-Observation Space is a Tuple constsiting of five Box data elements. 
-```
-[proximity,position,force,maps,gelsight]
-```
-#### proximity
-It is the reading of the proximity sensors (14 on the side + 8 at the tip). Its shape is (22,), dtype=uint8 and has values of 0 if no object and 1 if object in proximity.
+### **Observation Space**
+Observation Space is OpenAI gym Box type with 5154 elements. 
+It consists of normalized sensor data from proximity sensors, end effector position, force sensors, map of visited area and two gelsight sensors. 
 
+Refer to `decode_obs()` function in `agents/human_demonstrations.ipynb` for details
 
-#### position
-It is the cartesian x,y,z coordinates. Positions history from the previous two timesteps are also appended to the data, to make use of temporal informations. Its shape is (9,), dtype=float64 and has normalized values between 0 and 1
-
-#### force
-Wrist force sensor readings. Shape (3,), dtype=float64. Normalized between 0 and 1
-
-#### maps
-shape=(32,32,2)
-float64
-
-#### gelsight
-shape=(32,32,2)
-float64
 
