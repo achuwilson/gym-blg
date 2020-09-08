@@ -14,7 +14,7 @@ Activate it
 ```
  source blgenv/bin/activate
  ```
-Install Ipython for Jupyter notebook
+Install IPython for Jupyter notebook
 ```
 pip install ipykernel
 ```
@@ -102,6 +102,14 @@ TODO
 Observation Space is OpenAI gym Box type with 5154 elements. 
 It consists of normalized sensor data from proximity sensors, end effector position, force sensors, map of visited area and two gelsight sensors. 
 
-Refer to `decode_obs()` function in `agents/human_demonstrations.ipynb` for details
+Refer to `decode_obs()` function in [agents/human_demonstrations.ipynb](./agents/human_demonstrations.ipynb) for details
+
+### **Training**
+It is planned to use [Stable-Baselines](https://stable-baselines.readthedocs.io/en/master/index.html) implementation of [PPO](https://stable-baselines.readthedocs.io/en/master/modules/ppo2.html) in the initial approach. 
+It does allow easy [pretraining](https://stable-baselines.readthedocs.io/en/master/guide/pretrain.html) of policy network from human demonstrations 
+
+An example of acquiring human demonstration data is available here (Work in Progress)  [agents/human_demonstrations.ipynb](./agents/human_demonstrations.ipynb).
+Getting started [video](https://youtu.be/78spSGBkb98).
 
 
+A simple training using PPO is available in this Google Colab [Notebook](https://colab.research.google.com/drive/1Sgng1H7ZC21iQxenNCkiZeAFjbccyJYV?usp=sharing)
