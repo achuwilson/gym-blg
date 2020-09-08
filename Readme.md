@@ -105,7 +105,7 @@ It consists of normalized sensor data from proximity sensors, end effector posit
 Refer to `decode_obs()` function in [agents/human_demonstrations.ipynb](./agents/human_demonstrations.ipynb) for details
 
 ### **Training**
-It is planned to use [Stable-Baselines](https://stable-baselines.readthedocs.io/en/master/index.html) implementation of [PPO](https://stable-baselines.readthedocs.io/en/master/modules/ppo2.html) in the initial approach. 
+It is planned to try [Stable-Baselines](https://stable-baselines.readthedocs.io/en/master/index.html) implementation of [PPO](https://stable-baselines.readthedocs.io/en/master/modules/ppo2.html) in the initial approach. 
 It does allow easy [pretraining](https://stable-baselines.readthedocs.io/en/master/guide/pretrain.html) of policy network from human demonstrations 
 
 An example of acquiring human demonstration data is available here (Work in Progress)  [agents/human_demonstrations.ipynb](./agents/human_demonstrations.ipynb).
