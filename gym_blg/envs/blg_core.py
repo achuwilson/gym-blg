@@ -191,7 +191,7 @@ class BlindGrasp:
     def loadRobot(self):
         self.kuka = self.p.loadURDF('kuka_iiwa/model.urdf', useFixedBase = 1)
         self.blgripper=self.p.loadURDF(curPath+"/data/blgripper.urdf",[0,0,1.35]) 
-        self.tray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.TRAY_X,self.TRAY_Y,0.02],useFixedBase = 1)
+        self.tray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.TRAY_X,self.TRAY_Y,0.0],useFixedBase = 1)
         self.legotray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.LEGO_TRAY_X,self.LEGO_TRAY_Y,0.02],useFixedBase = 1,globalScaling=0.5)
         self.spheretray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.SPHERE_TRAY_X,self.SPHERE_TRAY_Y,0.02],useFixedBase = 1,globalScaling=0.5)
 
@@ -287,7 +287,7 @@ class BlindGrasp:
         
         obPosX=np.random.uniform(((self.TRAY_X-(self.TRAY_LEN/2.0))+self.safeLoadPos_off),((self.TRAY_X+(self.TRAY_LEN/2.0))-self.safeLoadPos_off), self.totalObjs)
         obPosY=np.random.uniform((self.TRAY_Y-(self.TRAY_LEN/2.0)),(self.TRAY_Y+(self.TRAY_LEN/2.0)), self.totalObjs)
-        obPosZ =0.1 #drop it from 0.1 m
+        obPosZ =0.18 #drop it from 0.1 m
 
         for num in range(self.numSpheres):
             #print("S",obPosX,obPosY)
