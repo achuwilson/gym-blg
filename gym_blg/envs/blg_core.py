@@ -72,11 +72,12 @@ class BlindGrasp:
     [11,5],[9,3],[7,1],[6,0],[5,0],[4,1],[2,3],[6,6],[6,5],[7,5],[6,4],[5,4],[5,5],[4,5],[5,6]]
 
     GRASP_FTHRES=0.1 #threshold force for grasp
-    # The height to which the ee should move down, to explore      
+    # The height to which the ee should move down, to explore
+    # This is actually the kuka flange height and not end effector height      
     #if z  below 0.172, lego grasp fails
     #if z  above 0.2, sphere and lego grasp fails
     #so, ((0.2-0.172)/2)+0.172 = 0.186
-    GripperTrayZ=0.182 
+    GripperTrayZ=0.16 # Tray exploration height
     deltaPoseZ=0.006 #distance dalta for z movement
     deltaPoseZSmall=0.0025 # used on first approach, to place it midway
     deltaPoseZHigh =0.056 # penalize if we go above this 
@@ -97,7 +98,7 @@ class BlindGrasp:
     X_MAX=0.786
     Y_MIN=-0.186
     Y_MAX=0.185
-    Z_MIN = 0.173
+    Z_MIN = 0.155
     Z_MAX= 0.36
 
     scaleRXY =800
@@ -199,8 +200,8 @@ class BlindGrasp:
         self.kuka = self.p.loadURDF('kuka_iiwa/model.urdf', useFixedBase = 1)
         self.blgripper=self.p.loadURDF(curPath+"/data/blgripper.urdf",[0,0,1.35]) 
         self.tray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.TRAY_X,self.TRAY_Y,0.0],useFixedBase = 1)
-        self.legotray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.LEGO_TRAY_X,self.LEGO_TRAY_Y,0.02],useFixedBase = 1,globalScaling=0.5)
-        self.spheretray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.SPHERE_TRAY_X,self.SPHERE_TRAY_Y,0.02],useFixedBase = 1,globalScaling=0.5)
+        self.legotray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.LEGO_TRAY_X,self.LEGO_TRAY_Y,0.0],useFixedBase = 1,globalScaling=0.5)
+        self.spheretray=self.p.loadURDF(curPath+"/data/tray/tray.urdf",[self.SPHERE_TRAY_X,self.SPHERE_TRAY_Y,0.0],useFixedBase = 1,globalScaling=0.5)
 
         #attach gripper to robot
         blgripper_cid = self.p.createConstraint(self.kuka,6,self.blgripper,-1,pybullet.JOINT_FIXED, [0,0,0], [0,0,0.025],[0,0,0])
@@ -718,8 +719,8 @@ class BlindGrasp:
 
         #TODO- make thrsholds global
         #thresholds for the z axis sensing
-        THR1=0.235
-        THR2=THR1+self.PROX_SENS_RANGE_TIP
+        THR1=self.GripperTrayZ + self.PROX_SENS_RANGE_TIP
+        #THR2=THR1+self.PROX_SENS_RANGE_TIP
         #get the values upto len(self.SENS_ANGLES)  -  the side sensors 
         sval=proxDataRaw[:len(self.SENS_ANGLES)]
         for i in range(self.SENS_LAYERS*len(self.SENS_ANGLES)):
@@ -745,7 +746,7 @@ class BlindGrasp:
         i_prev=i
         #if above an z threshold,add button(tip) sensors too
         # this is to avoid false positives at exploration height
-        if(THR2>=curPose[2]>=THR1):
+        if(curPose[2]>=THR1):
             #sval=sval + proxDataRaw[-8:]
             #sval=proxDataRaw[-8:]
             #the tip sensors -  4 nos :
@@ -753,9 +754,9 @@ class BlindGrasp:
             sval=proxDataRaw[-7:-3]
             #we are using tip sensors only during the descent, so we discard the outer surface sensor data
             # gathered before
-            px=[]
-            py=[]
-            s1val=[]
+            #px=[]
+            #py=[]
+            #s1val=[]
             i_count=1
             #for i in range((len(proxDataRaw)-len(proxDataRaw[-8:])),len(proxDataRaw)):
             #for i in range((len(self.SENS_POS)-8),len(self.SENS_POS)):    
@@ -795,14 +796,20 @@ class BlindGrasp:
             test4=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=epos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
             #only choose the rays inside the tray 
             #TODO - check for gripper open too
-            #TODO - should we add other points on the line too?
+            #add the midpoint of the line 
             if (test1 and test2 and test3 and test4):
-                px.append(spos[0][0])
-                py.append(spos[0][1])
+                #px.append(spos[0][0])
+                #py.append(spos[0][1])
             
                 #rayEndPos.append(epos[0])
-                px.append(epos[0][0])
-                py.append(epos[0][1])
+                #px.append(epos[0][0])
+                #py.append(epos[0][1])
+                #add midpoint
+                px.append((spos[0][0] +epos[0][0] )/2.0)
+                px.append((spos[0][0] +epos[0][0] )/2.0)
+                py.append((spos[0][1] +epos[0][1] )/2.0)
+                py.append((spos[0][1] +epos[0][1] )/2.0)
+                
                 s1val.append(proxDataRaw[j])
                 j=j+1
 
@@ -865,12 +872,27 @@ class BlindGrasp:
         #TODO: split curposmap  from a single ee point, to two points, corresponding to each finger
         test1=((self.TRAY_X+(self.TRAY_LEN/2.0))>=curPose[0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
         test2=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=curPose[1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
+        #add the position of the two fingers too, to the map    
+        finger1_x = curPose[0]+self.SENS_XOFF
+        finger2_x = curPose[0]-self.SENS_XOFF
+        finger1_y = curPose[1]
+        finger2_y = curPose[1]
+        fx=[]
+        fy=[]
+        fx.append(finger1_x)
+        fx.append(finger2_x)
+        fy.append(finger1_y)
+        fy.append(finger2_y)
         if(test1 and test2):
             binsx=np.linspace((self.TRAY_X-(self.TRAY_LEN/2.0)),(self.TRAY_X+(self.TRAY_LEN/2.0)),self.MAP_ROWS+1)
             binsy=np.linspace((self.TRAY_Y-(self.TRAY_LEN/2.0)),(self.TRAY_Y+(self.TRAY_LEN/2.0)),self.MAP_COLS+1)
             dig_x=np.digitize(curPose[0], binsx)
             dig_y=np.digitize(curPose[1], binsy)
+            digf_x = np.digitize(fx,binsx)
+            digf_y = np.digitize(fy,binsy)
             self.CurPosMap[dig_x-1,dig_y-1]=1
+            self.CurPosMap[digf_x-1,digf_y-1]=2
+        
 
 
     def calculateRewards(self):
@@ -1166,6 +1188,7 @@ class BlindGrasp:
         #get current EE position
         link_state = self.getPose()[0] #p.getLinkState(kuka, num_joints_k-1,computeForwardKinematics=True)
         cur_pos=np.array(link_state)
+        print("ZHEIGHT ",cur_pos[2])
         #newpos=current EE pos + delta
         new_pos=np.array([delta_x,delta_y,delta_z])+cur_pos
         #move robot to new pos
