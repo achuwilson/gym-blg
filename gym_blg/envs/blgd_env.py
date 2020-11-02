@@ -98,7 +98,8 @@ class BlgDiscreteEnv(gym.Env):
         self.observation_space=Tuple([prox_space,pos_space,force_space,maps_space,gel_space])
         '''
         #prox=22, pos=9,force=3, maps =3*32*32, gelsight 2*32*32 => total=5154
-        self.observation_space = Box(low=0,high=1,shape=(5154,))
+        #prox=17, pos=9,force=3, maps =3*32*32, gelsight 2*32*32 => total=5149
+        self.observation_space = Box(low=0,high=1,shape=(5149,))
 
         
 
