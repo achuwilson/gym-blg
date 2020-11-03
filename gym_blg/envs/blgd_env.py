@@ -99,7 +99,9 @@ class BlgDiscreteEnv(gym.Env):
         '''
         #prox=22, pos=9,force=3, maps =3*32*32, gelsight 2*32*32 => total=5154
         #prox=17, pos=9,force=3, maps =3*32*32, gelsight 2*32*32 => total=5149
-        self.observation_space = Box(low=0,high=1,shape=(5149,))
+        #self.observation_space = Box(low=0,high=1,shape=(5149,)) #with gelsight
+        self.observation_space = Box(low=0,high=1,shape=(3101,)) #without gelsight
+
 
         
 
@@ -124,11 +126,14 @@ class BlgDiscreteEnv(gym.Env):
 
         prox=obs[0] #proximity data, min0, max 1
         pos=obs[1]
-        pos=pos.reshape(3,3)-np.array([self.blg.X_MIN,self.blg.Y_MIN,0])# subtract 0.416 from x pos, add 0.187 to y
+        pos=pos.reshape(3,3)-np.array([self.blg.X_MIN,self.blg.Y_MIN,0.00])# subtract 0.416 from x pos, add 0.187 to y
         pos=pos.reshape(9,)
+        pos = np.around(pos,3)
+
         force=obs[2]
         force=np.clip(force, -7,7)
         force=np.interp(force, (-7, 7), (0, +1))
+        force = np.around(force,3)
         
         '''
         maps=np.stack((obs[3],obs[4]),axis=2)
@@ -143,8 +148,9 @@ class BlgDiscreteEnv(gym.Env):
 
         gelsight1=obs[6].flatten()
         gelsight2=obs[7].flatten()
-        step_obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap,gelsight1,gelsight2))
-
+        #step_obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap,gelsight1,gelsight2))
+        #trying without gelsight
+        step_obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap))
         return step_obs,reward,Done, {}
 
     
@@ -167,11 +173,14 @@ class BlgDiscreteEnv(gym.Env):
         #normalize  observations
         prox=obs[0] #proximity data, min0, max 1
         pos=obs[1]
-        pos=pos.reshape(3,3)-np.array([self.blg.X_MIN,self.blg.Y_MIN,0])# subtract 0.416 from x pos, add 0.187 to y
+        pos=pos.reshape(3,3)-np.array([self.blg.X_MIN,self.blg.Y_MIN,0.00])# subtract 0.416 from x pos, add 0.187 to y
         pos=pos.reshape(9,)
+        pos = np.around(pos,3)
+
         force=obs[2]
         force=np.clip(force, -7,7)
         force=np.interp(force, (-7, 7), (0, +1))
+        force = np.around(force,3)
         
         '''
         maps=np.stack((obs[3],obs[4]),axis=2)
@@ -186,7 +195,9 @@ class BlgDiscreteEnv(gym.Env):
 
         gelsight1=obs[6].flatten()
         gelsight2=obs[7].flatten()
-        obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap,gelsight1,gelsight2))
+        #obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap,gelsight1,gelsight2))
+        #trying without gelsight
+        obs = np.concatenate((prox,pos,force,objmap,visitmap,curmap))
         return obs
         
 

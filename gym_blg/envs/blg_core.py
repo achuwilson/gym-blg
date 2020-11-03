@@ -99,7 +99,7 @@ class BlindGrasp:
     Y_MIN=-0.186
     Y_MAX=0.185
     Z_MIN = 0.155
-    Z_MAX= 0.36
+    Z_MAX= 0.361
 
     scaleRXY =800
     TrayContactPenalty = 0#-100
@@ -806,22 +806,26 @@ class BlindGrasp:
             test4=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=epos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
             #only choose the rays inside the tray 
             #TODO - check for gripper open too
-            #add the midpoint of the line 
+            #number of points inside gripper to be checked for objects
+            numInnerPoints = 10 #NOTE: must be even
             if (test1 and test2 and test3 and test4):
-                #px.append(spos[0][0])
-                #py.append(spos[0][1])
-            
-                #rayEndPos.append(epos[0])
-                #px.append(epos[0][0])
-                #py.append(epos[0][1])
-                #add midpoint
-                px.append((spos[0][0] +epos[0][0] )/2.0)
-                px.append((spos[0][0] +epos[0][0] )/2.0)
-                py.append((spos[0][1] +epos[0][1] )/2.0)
-                py.append((spos[0][1] +epos[0][1] )/2.0)
-                
-                s1val.append(proxDataRaw[j])
-                j=j+1
+                #add the start and end points
+                px.append(spos[0][0])
+                py.append(spos[0][1])
+                px.append(epos[0][0])
+                py.append(epos[0][1])
+                #calculate the inner points
+                x_inPoints  = np.linspace(spos[0][0], epos[0][0], numInnerPoints)
+                y_inPoints  = np.linspace(spos[0][1], epos[0][1], numInnerPoints)
+                for xp in x_inPoints:
+                    px.append(xp)
+                for yp in y_inPoints:
+                    py.append(yp)
+                #add the sensor readings
+                for num in range(int(numInnerPoints/2) + 1): #additional 1 for epos and spos
+                    s1val.append(proxDataRaw[j])
+
+                j=j+1 #next sensor
 
 
         #double the array, to have, px, py and s2val have same size
@@ -1164,13 +1168,18 @@ class BlindGrasp:
         if (self.StepCount ==0):
             self.posStack = np.stack((curPose,curPose, curPose)).reshape(9,)
         else:
+            #most recent position first in array
             self.posStack=np.append(curPose,self.posStack[:6]).reshape(9,)    
         #curPose=np.array(self.getPose()[0],dtype = np.float)
+        #round the values to three decimal places
+        self.posStack=np.around(self.posStack, 3)
         obs.append(self.posStack)
 
         #get the wrist Force sensor data
         forces=self.getForces()
         wristforce=np.array(forces,dtype = np.float)
+        #round the values to three decimal places
+        wristforce = np.around(wristforce,3)
         obs.append(wristforce)
 
         #return ObjMap
