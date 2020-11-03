@@ -102,8 +102,8 @@ class BlindGrasp:
     Z_MAX= 0.36
 
     scaleRXY =800
-    TrayContactPenalty = -100
-    ObjContactPenalty = -2
+    TrayContactPenalty = 0#-100
+    ObjContactPenalty = 0#-2
     HighObjContactPenalty = -10
     safeLoadPos_off=0.05 #safe offset when loading objs, in x axis, so that object is placed such that gripper can pick it up without traycontact
     MapDeltaReward =  5
@@ -118,6 +118,8 @@ class BlindGrasp:
     DownMoveReward = 5
     ZContactPenalty = -5   #z axis collision penalty
     ZFthres = 0 # force threshold for z axis contact penalty
+    XYFthres = 1.5 #force threshold for contact detection in x and y axes
+    XYContactPenalty = -15 #xy axes collision penalty
 
     #MAP
     # the corners of tray are (0.395,0.205)(0.805,0.205)(0.805,-0.205)(0.395,-0.205)
@@ -613,6 +615,14 @@ class BlindGrasp:
             return 0
         else:
             return 1
+
+    def getFingerPos(self):
+        #return the xyz position of the two fingers
+        #NOTE: DOES NOT WORK PROPERLY - BUG FIX NEEDED
+        p0=self.p.getLinkState(self.blgripper,1,computeForwardKinematics=True)[0]   
+        p1=self.p.getLinkState(self.blgripper,2,computeForwardKinematics=True)[0]
+        return(np.append(p0,p1))
+
     def movetoPos(self,goal_pos):
         p_thres=0.001 #1 MM within commanded position
         error=10
@@ -872,7 +882,9 @@ class BlindGrasp:
         #TODO: split curposmap  from a single ee point, to two points, corresponding to each finger
         test1=((self.TRAY_X+(self.TRAY_LEN/2.0))>=curPose[0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
         test2=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=curPose[1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
-        #add the position of the two fingers too, to the map    
+        #get the current fingerpos
+        #finpos = self.getFingerPos()
+        #add the position of the two fingers too, to the map
         finger1_x = curPose[0]+self.SENS_XOFF
         finger2_x = curPose[0]-self.SENS_XOFF
         finger1_y = curPose[1]
@@ -891,7 +903,14 @@ class BlindGrasp:
             digf_x = np.digitize(fx,binsx)
             digf_y = np.digitize(fy,binsy)
             self.CurPosMap[dig_x-1,dig_y-1]=1
-            self.CurPosMap[digf_x-1,digf_y-1]=2
+            #TODO : fix the below try
+            #this is to catch the following error when gripper moves to boundary positions
+            #IndexError: index 32 is out of bounds for axis 0 with size 32
+            #for the line self.CurPosMap[digf_x-1,digf_y-1]=2
+            try:
+                self.CurPosMap[digf_x-1,digf_y-1]=2
+            except:
+                pass    
         
 
 
@@ -1096,8 +1115,13 @@ class BlindGrasp:
 
         #------------- PENALTY FOR COLLISION FROM TOP DIRECTION (by measuring FT sensor)
         forces=np.array(self.getForces())
+        #print("FORCES ", forces)
         if(forces[2]>self.ZFthres):
             p6=self.ZContactPenalty
+        if (abs(forces[0])>self.XYFthres):
+            p6=self.XYContactPenalty
+        if (abs(forces[1])>self.XYFthres):
+            p6=self.XYContactPenalty    
 
         #-------------- REWARD FOR MOVING TO UNEXPLORED CELLS IN THE MAP---------------
         # TODO - Do we really need it??    
@@ -1188,7 +1212,7 @@ class BlindGrasp:
         #get current EE position
         link_state = self.getPose()[0] #p.getLinkState(kuka, num_joints_k-1,computeForwardKinematics=True)
         cur_pos=np.array(link_state)
-        print("ZHEIGHT ",cur_pos[2])
+        #print("ZHEIGHT ",cur_pos[2])
         #newpos=current EE pos + delta
         new_pos=np.array([delta_x,delta_y,delta_z])+cur_pos
         #move robot to new pos
