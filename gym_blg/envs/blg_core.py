@@ -302,6 +302,10 @@ class BlindGrasp:
         self.totalObjs=random.randint(1,self.MAX_OBJ_NUM)
         self.numSpheres=random.randint(1,self.totalObjs)
         self.numLegos=self.totalObjs-self.numSpheres
+        
+        #for temporary testing: load only legos
+        self.numSpheres=0#random.randint(1,self.totalObjs)
+        self.numLegos=self.totalObjs
 
         #generate random position for objects - in x axis safety offset of 5 cm
         
@@ -869,7 +873,34 @@ class BlindGrasp:
                 px.append(epos[0][0])
                 py.append(epos[0][1])
             else:
-                pass    
+                pass 
+        #add the finger inner sensors
+        j = 14
+        for i in range((len(self.SENS_POS)-3),len(self.SENS_POS)):
+            spos=self.p.getBasePositionAndOrientation(self.SENS_ID[i])
+            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,self.PROX_SENS_RANGE_IN ),[0,0,0,1])
+
+            test1=((self.TRAY_X+(self.TRAY_LEN/2.0))>=spos[0][0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
+            test2=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=spos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
+            test3=((self.TRAY_X+(self.TRAY_LEN/2.0))>=epos[0][0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
+            test4=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=epos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
+            
+            numInnerPoints = 10
+            if (test1 and test2 and test3 and test4):
+                px.append(spos[0][0])
+                py.append(spos[0][1])
+                px.append(epos[0][0])
+                py.append(epos[0][1])
+                #calculate the inner points
+                x_inPoints  = np.linspace(spos[0][0], epos[0][0], numInnerPoints)
+                y_inPoints  = np.linspace(spos[0][1], epos[0][1], numInnerPoints)
+                for xp in x_inPoints:
+                    px.append(xp)
+                for yp in y_inPoints:
+                    py.append(yp)
+                j = j+1    
+
+
             
         binsx=np.linspace((self.TRAY_X-(self.TRAY_LEN/2.0)),(self.TRAY_X+(self.TRAY_LEN/2.0)),self.MAP_ROWS+1)
         binsy=np.linspace((self.TRAY_Y-(self.TRAY_LEN/2.0)),(self.TRAY_Y+(self.TRAY_LEN/2.0)),self.MAP_COLS+1)
