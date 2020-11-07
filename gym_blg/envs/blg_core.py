@@ -306,7 +306,7 @@ class BlindGrasp:
         #generate random position for objects - in x axis safety offset of 5 cm
         
         obPosX=np.random.uniform(((self.TRAY_X-(self.TRAY_LEN/2.0))+self.safeLoadPos_off),((self.TRAY_X+(self.TRAY_LEN/2.0))-self.safeLoadPos_off), self.totalObjs)
-        obPosY=np.random.uniform((self.TRAY_Y-(self.TRAY_LEN/2.0)),(self.TRAY_Y+(self.TRAY_LEN/2.0)), self.totalObjs)
+        obPosY=np.random.uniform(((self.TRAY_Y-(self.TRAY_LEN/2.0))+self.safeLoadPos_off),((self.TRAY_Y+(self.TRAY_LEN/2.0))-self.safeLoadPos_off), self.totalObjs)
         obPosZ =0.18 #drop it from 0.1 m
 
         for num in range(self.numSpheres):
