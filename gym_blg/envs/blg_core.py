@@ -28,6 +28,7 @@ class BlindGrasp:
     CYL_HEIGHT=0.0025
     CYL_MASS=0.0000001
     SENS_XOFF=0.052 #zero offset between the sensor array centre and geometric origin
+    SENS_XOFF_CLOSE = 0.015 #the same thing as above, but when closed
     SENS_RAD=0.032 # radius of the sensor array origin 
     #SENS_ANGLES=[0.0,30.0,60.0,82.5,97.5,120.0,150.0,180.0,210.0,240.0,262.5,277.5,300.0,330.0] #7 sensor version
     SENS_ANGLES = [0.0,45.0,82.5,97.5,135,180,225,262.5,277.5,315] #5 sensor version
@@ -36,6 +37,7 @@ class BlindGrasp:
     PROX_SENS_RANGE=0.01
     PROX_SENS_RANGE_TIP=0.02
     PROX_SENS_RANGE_IN = 0.09
+    PROX_SENS_RANGE_IN_CLOSE = 0.01
    
     SENS_LAYERS=1 #number of layers used, ie from the tip
 
@@ -429,11 +431,16 @@ class BlindGrasp:
             if(self.GUI):
                 self.p.addUserDebugLine(spos[0],epos[0],[1,0,0], lifeTime=0.05)
 
+        if(self.GraspCommanded):
+            inRange = self.PROX_SENS_RANGE_IN_CLOSE
+        else:
+            inRange = self.PROX_SENS_RANGE_IN  
+
         for i in range((len(self.SENS_POS)-3),len(self.SENS_POS)):
         #for i in range((SENS_LAYERS*len(SENS_ANGLES)), ((SENS_LAYERS*len(SENS_ANGLES))+8)):
             spos=self.p.getBasePositionAndOrientation(self.SENS_ID[i])
             rayStartPos.append(spos[0])
-            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,self.PROX_SENS_RANGE_IN),[0,0,0,1])
+            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,inRange),[0,0,0,1])
             rayEndPos.append(epos[0])
             if(self.GUI):
                 self.p.addUserDebugLine(spos[0],epos[0],[1,0,0], lifeTime=0.05)        
@@ -800,9 +807,13 @@ class BlindGrasp:
         # the iterator for inner sensors -  14, 15, 16 
         j = 14 
         #last 3 sensors
+        if(self.GraspCommanded):
+            inRange = self.PROX_SENS_RANGE_IN_CLOSE
+        else:
+            inRange = self.PROX_SENS_RANGE_IN  
         for i in range((len(self.SENS_POS)-3),len(self.SENS_POS)):
             spos=self.p.getBasePositionAndOrientation(self.SENS_ID[i])
-            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,self.PROX_SENS_RANGE_IN ),[0,0,0,1])
+            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,inRange ),[0,0,0,1])
 
             test1=((self.TRAY_X+(self.TRAY_LEN/2.0))>=spos[0][0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
             test2=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=spos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
@@ -876,9 +887,13 @@ class BlindGrasp:
                 pass 
         #add the finger inner sensors
         j = 14
+        if(self.GraspCommanded):
+            inRange = self.PROX_SENS_RANGE_IN_CLOSE
+        else:
+            inRange = self.PROX_SENS_RANGE_IN
         for i in range((len(self.SENS_POS)-3),len(self.SENS_POS)):
             spos=self.p.getBasePositionAndOrientation(self.SENS_ID[i])
-            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,self.PROX_SENS_RANGE_IN ),[0,0,0,1])
+            epos=self.p.multiplyTransforms(spos[0],spos[1],(0,0,inRange ),[0,0,0,1])
 
             test1=((self.TRAY_X+(self.TRAY_LEN/2.0))>=spos[0][0]>=(self.TRAY_X-(self.TRAY_LEN/2.0)))
             test2=((self.TRAY_Y+(self.TRAY_LEN/2.0))>=spos[0][1]>=(self.TRAY_Y-(self.TRAY_LEN/2.0)))
@@ -920,8 +935,12 @@ class BlindGrasp:
         #get the current fingerpos
         #finpos = self.getFingerPos()
         #add the position of the two fingers too, to the map
-        finger1_x = curPose[0]+self.SENS_XOFF
-        finger2_x = curPose[0]-self.SENS_XOFF
+        if(self.GraspCommanded):
+            finger1_x = curPose[0]+self.SENS_XOFF_CLOSE
+            finger2_x = curPose[0]-self.SENS_XOFF_CLOSE
+        else:
+            finger1_x = curPose[0]+self.SENS_XOFF
+            finger2_x = curPose[0]-self.SENS_XOFF
         finger1_y = curPose[1]
         finger2_y = curPose[1]
         fx=[]
